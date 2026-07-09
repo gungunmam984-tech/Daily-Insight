@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Insight — News That Moves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5F0;
+    --ink:#15181C;
+    --ink-soft:#3A3F45;
+    --line: rgba(21,24,28,0.14);
+    --red:#C4291F;
+    --red-dim:#8E1E17;
+    --teal:#1F6E67;
+    --amber:#C9862C;
+    --card:#FFFFFF;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Source Serif 4', serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--red); color:#fff;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:2px solid var(--red); outline-offset:3px;}
+  h1,h2,h3,h4{
+    font-family:'Barlow Condensed', sans-serif; font-weight:700;
+    margin:0; letter-spacing:-0.01em; text-transform:none;
+  }
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; font-weight:600;
+  }
+  .kicker.world{color:var(--teal);}
+  .kicker.business{color:var(--amber);}
+  .kicker.technology{color:#4A5CC4;}
+  .kicker.sports{color:var(--red);}
+  .kicker.culture{color:#8E4FB0;}
+
+  /* ticker */
+  .ticker-bar{
+    background:var(--ink); color:var(--paper); overflow:hidden; white-space:nowrap;
+    display:flex; align-items:center; height:36px;
+  }
+  .ticker-label{
+    background:var(--red); color:#fff; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+    padding:0 14px; height:100%; display:flex; align-items:center; flex-shrink:0; z-index:2;
+  }
+  .ticker-track{display:flex; animation:scroll-left 32s linear infinite;}
+  .ticker-track span{
+    padding:0 32px; font-family:'IBM Plex Mono', monospace; font-size:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .ticker-track span::before{content:"●"; color:var(--red); font-size:6px;}
+  @keyframes scroll-left{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .ticker-track{animation:none; overflow-x:auto;} }
+
+  /* header */
+  header{
+    background:var(--paper); border-bottom:2px solid var(--ink); position:sticky; top:0; z-index:100;
+  }
+  .header-top{
+    max-width:1200px; margin:0 auto; padding:14px 32px 10px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .dateline-strip{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+    letter-spacing:0.04em; text-transform:uppercase;
+  }
+  .logo{
+    font-family:'Archivo Black', sans-serif; font-size:30px; letter-spacing:-0.02em;
+    text-align:center; padding:6px 0 14px; max-width:1200px; margin:0 auto;
+  }
+  .logo span{color:var(--red);}
+  nav.main-nav{
+    border-top:1px solid var(--line); max-width:1200px; margin:0 auto;
+    display:flex; justify-content:center; gap:2px; flex-wrap:wrap; padding:0 32px;
+  }
+  nav.main-nav button{
+    background:none; border:none; color:var(--ink-soft); font-family:'Barlow Condensed', sans-serif;
+    font-weight:600; font-size:15px; letter-spacing:0.03em; text-transform:uppercase;
+    padding:12px 16px; position:relative; transition:color .2s;
+  }
+  nav.main-nav button:hover{color:var(--ink);}
+  nav.main-nav button.active{color:var(--red);}
+  nav.main-nav button.active::after{
+    content:""; position:absolute; left:16px; right:16px; bottom:0; height:2px; background:var(--red);
+  }
+
+  main{max-width:1200px; margin:0 auto; padding:0 32px;}
+
+  /* HOME */
+  .lead-grid{
+    display:grid; grid-template-columns:1.6fr 1fr; gap:0; padding:36px 0 0;
+    border-bottom:1px solid var(--line);
+  }
+  .lead-story{padding-right:36px; border-right:1px solid var(--line); cursor:pointer;}
+  .lead-cover{aspect-ratio:16/9; border-radius:var(--radius); overflow:hidden; margin-bottom:18px;}
+  .lead-cover svg{width:100%; height:100%; display:block;}
+  .lead-story h1{font-size:42px; line-height:1.05; margin:12px 0 14px; transition:color .15s;}
+  .lead-story:hover h1{color:var(--red);}
+  .lead-story .dek{font-size:17px; color:var(--ink-soft); margin-bottom:14px; max-width:56ch;}
+  .byline{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:0.04em; display:flex; gap:10px; align-items:center;
+  }
+  .byline .dot{width:3px; height:3px; border-radius:50%; background:var(--ink-soft);}
+
+  .secondary-list{padding-left:36px; display:flex; flex-direction:column;}
+  .sec-item{padding:20px 0; border-bottom:1px solid var(--line); cursor:pointer;}
+  .sec-item:first-child{padding-top:0;}
+  .sec-item h4{font-size:19px; line-height:1.25; margin:6px 0 8px; transition:color .15s;}
+  .sec-item:hover h4{color:var(--red);}
+  .sec-item .meta{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+
+  /* category strip */
+  .cat-strip{display:flex; gap:8px; flex-wrap:wrap; padding:24px 0; border-bottom:1px solid var(--line);}
+  .cat-chip{
+    border:1px solid var(--ink); background:none; color:var(--ink);
+    font-family:'Barlow Condensed', sans-serif; font-weight:600; font-size:14px;
+    text-transform:uppercase; letter-spacing:0.03em; padding:7px 16px; border-radius:20px; transition:all .15s;
+  }
+  .cat-chip:hover{background:var(--ink); color:var(--paper);}
+  .cat-chip.active{background:var(--red); border-color:var(--red); color:#fff;}
+
+  .section-head{display:flex; justify-content:space-between; align-items:baseline; padding:32px 0 20px;}
+  .section-head h2{font-size:26px; text-transform:uppercase;}
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:0; padding-bottom:16px; border-top:1px solid var(--line);}
+  .card{
+    cursor:pointer; padding:22px 22px 26px 0; border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .grid .card:nth-child(3n){border-right:none;}
+  .card-cover{aspect-ratio:4/3; border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .card-cover svg{width:100%; height:100%; display:block; transition:transform .5s;}
+  .card:hover .card-cover svg{transform:scale(1.05);}
+  .card h3{font-size:20px; line-height:1.25; margin:8px 0 10px; transition:color .15s;}
+  .card:hover h3{color:var(--red);}
+  .card p{color:var(--ink-soft); font-size:14.5px; margin:0 0 10px;}
+  .card .meta{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+
+  /* ARTICLE */
+  .article-wrap{padding:40px 0 80px; max-width:760px; margin:0 auto;}
+  .back-link{
+    display:inline-flex; align-items:center; gap:8px; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; margin-bottom:26px; background:none; border:none;
+    text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .back-link:hover{color:var(--red);}
+  .article-wrap h1{font-size:38px; line-height:1.1; margin:12px 0 16px;}
+  .article-wrap .dek{font-size:18px; color:var(--ink-soft); margin-bottom:18px;}
+  .article-cover{aspect-ratio:16/8; border-radius:var(--radius); overflow:hidden; margin:24px 0 8px;}
+  .article-cover svg{width:100%; height:100%; display:block;}
+  .cover-cap{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:30px;}
+  .article-body{font-size:18px; color:#24282D;}
+  .article-body p{margin:0 0 20px;}
+  .article-body p.dateline{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); font-style:normal;
+  }
+  .article-body h3{font-family:'Barlow Condensed', sans-serif; font-size:23px; text-transform:uppercase; margin:32px 0 14px;}
+  .article-body blockquote{
+    border-left:3px solid var(--red); margin:28px 0; padding:2px 0 2px 22px;
+    font-family:'Source Serif 4', serif; font-style:italic; font-size:21px;
+  }
+  .tag-row{display:flex; gap:8px; flex-wrap:wrap; margin:32px 0; padding-top:24px; border-top:1px solid var(--line);}
+  .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft);
+    border:1px solid var(--line); padding:6px 12px; border-radius:20px;
+  }
+  .related-head{
+    font-family:'Barlow Condensed', sans-serif; font-size:14px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--ink-soft); margin:8px 0 18px; border-top:1px solid var(--line); padding-top:24px;
+  }
+  .related-grid{display:grid; grid-template-columns:1fr 1fr; gap:0; border-top:1px solid var(--line);}
+  .related-grid .card:nth-child(2){border-right:none;}
+
+  /* about / contact */
+  .page-simple{padding:48px 0 80px; max-width:700px;}
+  .page-simple h1{font-size:38px; margin-bottom:18px; text-transform:uppercase;}
+  .page-simple p{color:#24282D; font-size:17px; margin-bottom:16px;}
+  .stats-row{display:flex; gap:40px; margin:32px 0; flex-wrap:wrap;}
+  .stat b{display:block; font-family:'Archivo Black', sans-serif; font-size:30px; color:var(--red);}
+  .stat span{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em;}
+
+  form.contact-form{display:flex; flex-direction:column; gap:16px; margin-top:28px;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:0.05em; margin-bottom:7px;
+  }
+  .field input, .field textarea{
+    width:100%; background:var(--card); border:1px solid var(--line); color:var(--ink);
+    padding:12px 13px; font-family:'Source Serif 4', serif; font-size:15px; border-radius:var(--radius);
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--red);}
+  .submit-btn{
+    background:var(--red); color:#fff; border:none; padding:13px 26px; font-family:'Barlow Condensed', sans-serif;
+    font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:0.03em; border-radius:20px;
+    align-self:flex-start; transition:background .2s;
+  }
+  .submit-btn:hover{background:var(--red-dim);}
+  .form-note{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  footer{border-top:2px solid var(--ink); margin-top:40px;}
+  .footer-inner{max-width:1200px; margin:0 auto; padding:40px 32px 28px; display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:36px;}
+  .footer-brand .logo2{font-family:'Archivo Black', sans-serif; font-size:22px; margin-bottom:10px;}
+  .footer-brand .logo2 span{color:var(--red);}
+  .footer-brand p{color:var(--ink-soft); font-size:13.5px; max-width:30ch;}
+  .footer-col h5{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--ink-soft); margin-bottom:12px;
+  }
+  .footer-col a, .footer-col button{
+    display:block; background:none; border:none; color:var(--ink); text-align:left;
+    font-family:'Source Serif 4', serif; font-size:14px; padding:0 0 9px; width:100%;
+  }
+  .footer-col a:hover, .footer-col button:hover{color:var(--red);}
+  .footer-bottom{
+    max-width:1200px; margin:0 auto; padding:16px 32px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+  }
+
+  [data-view]{display:none;}
+  [data-view].visible{display:block;}
+
+  @media (max-width:860px){
+    .lead-grid{grid-template-columns:1fr;}
+    .lead-story{border-right:none; padding-right:0; border-bottom:1px solid var(--line); padding-bottom:24px;}
+    .secondary-list{padding-left:0; padding-top:24px;}
+    .grid{grid-template-columns:1fr 1fr;}
+    .grid .card:nth-child(2n){border-right:none;}
+    .grid .card:nth-child(3n){border-right:1px solid var(--line);}
+    .related-grid{grid-template-columns:1fr;}
+    .footer-inner{grid-template-columns:1fr 1fr;}
+    nav.main-nav{display:none;}
+  }
+  @media (max-width:560px){
+    main{padding:0 18px;}
+    .grid{grid-template-columns:1fr;}
+    .grid .card{border-right:none;}
+    .lead-story h1{font-size:30px;}
+    .article-wrap h1{font-size:28px;}
+    .footer-inner{grid-template-columns:1fr; padding:32px 18px;}
+    .header-top{padding:12px 18px 8px; flex-direction:column; gap:4px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker-bar">
+  <span class="ticker-label">Live</span>
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<header>
+  <div class="header-top">
+    <span class="dateline-strip" id="dateStrip"></span>
+    <span class="dateline-strip" id="clockStrip"></span>
+  </div>
+  <div class="logo">DAILY <span>INSIGHT</span></div>
+  <nav class="main-nav" id="mainNav"></nav>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section data-view="home">
+    <div class="lead-grid" id="leadSlot"></div>
+    <div class="cat-strip" id="catsSlot"></div>
+    <div class="section-head">
+      <h2>All Coverage</h2>
+      <span class="kicker" id="articleCount" style="color:var(--ink-soft);"></span>
+    </div>
+    <div class="grid" id="gridSlot"></div>
+  </section>
+
+  <!-- ARTICLE -->
+  <section data-view="article">
+    <div class="article-wrap" id="articleSlot"></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section data-view="about">
+    <div class="page-simple">
+      <span class="kicker world">About Us</span>
+      <h1>Reporting built to be re-read.</h1>
+      <p>Daily Insight is an independent newsroom covering business, technology, world affairs, sports, and culture. We publish fewer stories than the average outlet, and check each one harder. No anonymous "sources say" without a named editor standing behind it.</p>
+      <p>Founded by a small group of reporters who left larger newsrooms over the same complaint — speed had started to outrank accuracy — Daily Insight runs on a simple rule: a story ships when it's right, not when it's first.</p>
+      <div class="stats-row">
+        <div class="stat"><b>11</b><span>Staff reporters</span></div>
+        <div class="stat"><b>1,840</b><span>Stories filed</span></div>
+        <div class="stat"><b>0</b><span>Unnamed sources policy</span></div>
+      </div>
+      <p>Tips, corrections, or feedback — the <a href="#" onclick="navigate('contact');return false;" style="color:var(--red); text-decoration:underline;">newsroom desk</a> is always open.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section data-view="contact">
+    <div class="page-simple">
+      <span class="kicker business">Contact</span>
+      <h1>Reach the newsroom.</h1>
+      <p>Have a tip, a correction, or a story we should be covering? Send it through — every message is read by an editor, not a filter.</p>
+      <form class="contact-form" onsubmit="handleContact(event)">
+        <div class="field">
+          <label for="cf-name">Name</label>
+          <input id="cf-name" type="text" placeholder="Your full name" required>
+        </div>
+        <div class="field">
+          <label for="cf-email">Email</label>
+          <input id="cf-email" type="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="cf-msg">Message</label>
+          <textarea id="cf-msg" rows="5" placeholder="What's the story?" required></textarea>
+        </div>
+        <button class="submit-btn" type="submit">Send to Desk</button>
+        <span class="form-note" id="contactNote"></span>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo2">DAILY <span>INSIGHT</span></div>
+      <p>Independent news on business, technology, world affairs, sports, and culture.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Navigate</h5>
+      <button onclick="navigate('home')">Home</button>
+      <button onclick="navigate('home');scrollToGrid()">Coverage</button>
+      <button onclick="navigate('about')">About</button>
+      <button onclick="navigate('contact')">Contact</button>
+    </div>
+    <div class="footer-col">
+      <h5>Sections</h5>
+      <div id="footerCats"></div>
+    </div>
+    <div class="footer-col">
+      <h5>Elsewhere</h5>
+      <a href="#" onclick="return false;">Twitter / X</a>
+      <a href="#" onclick="return false;">RSS feed</a>
+      <a href="#" onclick="return false;">Newsletter</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Daily Insight Newsroom</span>
+    <span>Filed accurately, not just first</span>
+  </div>
+</footer>
+
+<script>
+/* ---------------- DATA ---------------- */
+const POSTS = [
+  {
+    id:"port-throughput-record",
+    category:"Business", catClass:"business",
+    title:"Freight Volumes at Coastal Ports Hit Three-Year High",
+    dek:"A rebound in container shipping is straining rail capacity inland, logistics operators say, as retailers rebuild inventory ahead of the season.",
+    author:"L. Marchetti", date:"Jul 8, 2026", read:"5 min read", dateline:"PORT ELDRIDGE —",
+    tags:["Trade","Logistics","Economy"],
+    palette:["#C9862C","#1F6E67","#15181C"],
+    body:[
+      {type:"dateline", text:"PORT ELDRIDGE — Container traffic through the country's three largest coastal ports climbed to its highest level in three years last month, according to figures released Tuesday by the Port Authority Coordination Board, as retailers rushed to rebuild inventories drawn down during last year's slowdown."},
+      {type:"p", text:"The surge has exposed a familiar bottleneck further inland: rail yards built for steadier, more predictable volumes are struggling to clear containers fast enough, pushing some shippers back onto trucks at a higher cost per mile."},
+      {type:"p", text:"\"We planned for growth, just not this much of it this fast,\" said Dana Whitfield, chief operating officer at a regional intermodal operator, in a call with investors. Her company has added weekend shifts at two yards and is evaluating a third.",},
+      {type:"h3", text:"What's driving the rebound"},
+      {type:"p", text:"Economists point to two overlapping causes: a modest recovery in consumer spending on durable goods, and a wave of restocking after retailers ran unusually lean inventories through the back half of last year. Neither factor alone would explain the size of the jump, several analysts said, but together they've produced a sharper spike than most forecasts anticipated."},
+      {type:"quote", text:"Every part of the chain planned for a gradual recovery. What showed up was a sprint."},
+      {type:"p", text:"Whether the volumes hold through the fall remains the open question on every earnings call this quarter. Port officials say they're watching booking data for early signs of a pullback, but as of this week, ships are still arriving faster than crews can turn them around."}
+    ]
+  },
+  {
+    id:"chipmaker-cooling-patent",
+    category:"Technology", catClass:"technology",
+    title:"Startup's Liquid-Cooling Patent Could Cut Data Center Energy Use",
+    dek:"A small hardware company says its new cooling approach reduces energy draw by nearly a third in early testing — a claim now being independently verified.",
+    author:"R. Osei", date:"Jul 7, 2026", read:"6 min read", dateline:"SAN LEANDRO —",
+    tags:["Hardware","Energy","AI Infrastructure"],
+    palette:["#4A5CC4","#1F6E67","#15181C"],
+    body:[
+      {type:"dateline", text:"SAN LEANDRO — A four-year-old hardware startup says it has developed a liquid-cooling method that cut energy consumption by nearly a third in a pilot data center, a claim that, if independently confirmed, could meaningfully change the economics of running large computing clusters."},
+      {type:"p", text:"The company's approach circulates a dielectric fluid directly across processor packages rather than through a surrounding cold plate, according to a patent filing reviewed this week. Engineers not affiliated with the company describe the underlying physics as sound, though several cautioned that pilot-scale results don't always hold at full data-center scale."},
+      {type:"h3", text:"Independent testing underway"},
+      {type:"p", text:"A university engineering lab has agreed to run its own trial using the company's hardware over the next quarter, with results expected before the end of the year. The company's founder, a former semiconductor packaging engineer, said she welcomed the scrutiny."},
+      {type:"quote", text:"If the number is real, it's real whether we say it or someone else does."},
+      {type:"p", text:"Energy draw has become one of the central constraints on building new large-scale computing facilities, with several regions reporting delayed approvals tied to grid capacity. A verified reduction of even half the claimed figure would be significant enough to reshape site-selection decisions industry-wide, according to two infrastructure analysts contacted for this story."}
+    ]
+  },
+  {
+    id:"midseason-transfer",
+    category:"Sports", catClass:"sports",
+    title:"Mid-Season Trade Reshapes Conference Standings",
+    dek:"A surprise roster move has shifted the balance of power heading into the second half of the season, coaches and analysts say.",
+    author:"T. Okonkwo", date:"Jul 6, 2026", read:"4 min read", dateline:"HARLOW CITY —",
+    tags:["League","Analysis"],
+    palette:["#C4291F","#C9862C","#15181C"],
+    body:[
+      {type:"dateline", text:"HARLOW CITY — A trade completed just before Tuesday's deadline has sent last season's leading scorer to a division rival, a move that caught most of the league off guard and immediately reordered preseason expectations for the second half."},
+      {type:"p", text:"The receiving team gives up two future draft picks and a developing forward in exchange, a package several league observers described as steep but justifiable given the shortened runway most contenders are working with this year."},
+      {type:"h3", text:"How coaches are reacting"},
+      {type:"p", text:"\"You don't make a move like this unless you believe the window is now,\" said the team's head coach in a brief statement after practice. Rival coaches, for their part, were less diplomatic about the timing, with one calling it \"a desperation swing dressed up as a strategy.\""},
+      {type:"quote", text:"Trades like this either age brilliantly or get taught in front offices as a cautionary tale. Rarely anything in between."},
+      {type:"p", text:"Ticket resale prices for the two teams' next meeting have already climbed sharply, an early sign of how much attention the move has generated beyond the standings themselves."}
+    ]
+  },
+  {
+    id:"museum-archive-digitized",
+    category:"Culture", catClass:"culture",
+    title:"City Archive Completes Decade-Long Digitization Project",
+    dek:"Over two million historical documents are now searchable online, opening a trove of local records to researchers and the public alike.",
+    author:"S. Vance", date:"Jul 5, 2026", read:"5 min read", dateline:"BRACKENFIELD —",
+    tags:["Archives","Local History"],
+    palette:["#8E4FB0","#C9862C","#15181C"],
+    body:[
+      {type:"dateline", text:"BRACKENFIELD — After ten years and roughly two million individual scans, the city's historical archive announced this week that its full collection of municipal records, personal correspondence, and photographs is now searchable online, free of charge."},
+      {type:"p", text:"The project, funded through a mix of city grants and private donations, employed a rotating team of archivists and volunteers who hand-catalogued fragile materials dating back nearly two centuries, many of which had never been indexed in any searchable form."},
+      {type:"h3", text:"What researchers are finding"},
+      {type:"p", text:"Early users of the database have already surfaced correspondence that revises the accepted timeline of the city's founding-era water disputes, according to the lead archivist. \"We knew there'd be surprises in here. We didn't expect one in the first month,\" she said."},
+      {type:"quote", text:"An archive nobody can search isn't really an archive. It's a warehouse."},
+      {type:"p", text:"The city plans to keep the collection growing, with a second phase focused on digitizing audio recordings from public meetings dating back to the 1970s."}
+    ]
+  },
+  {
+    id:"central-bank-rate-hold",
+    category:"Business", catClass:"business",
+    title:"Central Bank Holds Rates Steady, Signals Caution Ahead",
+    dek:"Policymakers left borrowing costs unchanged for a third straight meeting, citing mixed signals on inflation and employment.",
+    author:"L. Marchetti", date:"Jul 3, 2026", read:"6 min read", dateline:"CAPITAL DISTRICT —",
+    tags:["Economy","Policy"],
+    palette:["#C9862C","#4A5CC4","#15181C"],
+    body:[
+      {type:"dateline", text:"CAPITAL DISTRICT — The central bank's policy committee voted Wednesday to hold its benchmark interest rate unchanged for a third consecutive meeting, citing a labor market that has cooled more slowly than expected alongside inflation readings that remain just above target."},
+      {type:"p", text:"In prepared remarks, the committee chair described the current data as \"not yet decisive in either direction,\" language several economists read as an attempt to keep future rate cuts on the table without committing to a timeline."},
+      {type:"h3", text:"Markets react cautiously"},
+      {type:"p", text:"Equity markets closed roughly flat on the day, while yields on short-term government debt ticked slightly higher, reflecting a modest repricing of rate-cut expectations further into the year."},
+      {type:"quote", text:"They didn't close the door. They just didn't tell us which room it leads to."},
+      {type:"p", text:"The next policy meeting is scheduled for early autumn, by which point officials will have two additional months of employment and price data to weigh."}
+    ]
+  },
+  {
+    id:"open-source-safety-tool",
+    category:"Technology", catClass:"technology",
+    title:"Researchers Release Open-Source Tool for Auditing Model Behavior",
+    dek:"A university lab has published a free toolkit that lets developers test AI systems for inconsistent or unsafe outputs before deployment.",
+    author:"R. Osei", date:"Jul 1, 2026", read:"5 min read", dateline:"LAKEWOOD —",
+    tags:["AI Safety","Open Source"],
+    palette:["#4A5CC4","#C4291F","#15181C"],
+    body:[
+      {type:"dateline", text:"LAKEWOOD — A university research lab released an open-source auditing toolkit this week designed to help development teams identify inconsistent or potentially unsafe behavior in AI systems before those systems reach production."},
+      {type:"p", text:"The toolkit runs a battery of standardized test prompts against a given system and flags responses that diverge from expected behavior across categories including factual consistency, refusal handling, and susceptibility to prompt manipulation."},
+      {type:"h3", text:"Why researchers built it in the open"},
+      {type:"p", text:"The team's lead researcher said releasing the tool publicly, rather than licensing it commercially, was a deliberate choice intended to let smaller teams without dedicated safety staff run the same checks larger labs already use internally."},
+      {type:"quote", text:"Safety tooling shouldn't be a luxury only the biggest labs can afford to build."},
+      {type:"p", text:"Several independent developers have already submitted contributions expanding the toolkit's test coverage, and the lab says it plans to publish quarterly updates as new failure patterns are identified across the field."}
+    ]
+  }
+];
+
+const CATEGORIES = [...new Set(POSTS.map(p=>p.category))];
+
+/* ---------------- COVER ART ---------------- */
+function coverSVG(post, seed){
+  const [c1,c2,c3] = post.palette;
+  const s = seed || post.id.length;
+  const shapes = [];
+  for(let i=0;i<4;i++){
+    const x = (s*41 + i*67) % 400;
+    const y = (s*59 + i*31) % 300;
+    const w = 60 + ((s + i*23) % 140);
+    shapes.push(`<rect x="${x-w/2}" y="${y-w/2}" width="${w}" height="${w}" fill="${i%2===0?c1:c2}" opacity="${0.18 + (i%3)*0.08}" transform="rotate(${(s+i*17)%45} ${x} ${y})"/>`);
+  }
+  return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="300" fill="${c3}"/>
+    ${shapes.join('')}
+    <line x1="0" y1="0" x2="400" y2="0" stroke="${c1}" stroke-width="4"/>
+  </svg>`;
+}
+
+/* ---------------- NAV / RENDER ---------------- */
+const navItems = [
+  {id:"home", label:"Home"},
+  {id:"about", label:"About"},
+  {id:"contact", label:"Contact"}
+];
+function renderNav(active){
+  document.getElementById('mainNav').innerHTML = navItems.map(n=>
+    `<button class="${n.id===active?'active':''}" onclick="navigate('${n.id}')">${n.label}</button>`
+  ).join('');
+}
+
+function renderTicker(){
+  const items = POSTS.map(p => `${p.category.toUpperCase()}: ${p.title}`);
+  const doubled = items.concat(items);
+  document.getElementById('tickerTrack').innerHTML = doubled.map(t=>`<span>${t}</span>`).join('');
+}
+
+function renderLead(){
+  const lead = POSTS[0];
+  const rest = POSTS.slice(1,4);
+  document.getElementById('leadSlot').innerHTML = `
+    <div class="lead-story" onclick="openPost('${lead.id}')">
+      <div class="lead-cover">${coverSVG(lead, 3)}</div>
+      <span class="kicker ${lead.catClass}">${lead.category}</span>
+      <h1>${lead.title}</h1>
+      <p class="dek">${lead.dek}</p>
+      <div class="byline"><span>${lead.author}</span><span class="dot"></span><span>${lead.date}</span><span class="dot"></span><span>${lead.read}</span></div>
+    </div>
+    <div class="secondary-list">
+      ${rest.map(p=>`
+        <div class="sec-item" onclick="openPost('${p.id}')">
+          <span class="kicker ${p.catClass}">${p.category}</span>
+          <h4>${p.title}</h4>
+          <div class="meta">${p.author} · ${p.read}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+let currentCat = null;
+function renderCats(){
+  const html = `<button class="cat-chip ${!currentCat?'active':''}" onclick="filterCat(null)">All Sections</button>` +
+    CATEGORIES.map(c=>`<button class="cat-chip ${currentCat===c?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join('');
+  document.getElementById('catsSlot').innerHTML = html;
+  document.getElementById('footerCats').innerHTML = CATEGORIES.map(c=>
+    `<button onclick="navigate('home');filterCat('${c}')">${c}</button>`
+  ).join('');
+}
+function filterCat(cat){ currentCat = cat; renderCats(); renderGrid(); }
+
+function renderGrid(){
+  const list = currentCat ? POSTS.filter(p=>p.category===currentCat) : POSTS;
+  document.getElementById('articleCount').textContent = `${list.length} STORIES`;
+  document.getElementById('gridSlot').innerHTML = list.map((p,i)=>`
+    <article class="card" onclick="openPost('${p.id}')">
+      <div class="card-cover">${coverSVG(p,i+7)}</div>
+      <span class="kicker ${p.catClass}">${p.category}</span>
+      <h3>${p.title}</h3>
+      <p>${p.dek}</p>
+      <div class="meta">${p.author} · ${p.date}</div>
+    </article>
+  `).join('');
+}
+
+function renderBody(blocks){
+  return blocks.map(b=>{
+    if(b.type==='dateline') return `<p class="dateline">${b.text}</p>`;
+    if(b.type==='p') return `<p>${b.text}</p>`;
+    if(b.type==='h3') return `<h3>${b.text}</h3>`;
+    if(b.type==='quote') return `<blockquote>${b.text}</blockquote>`;
+    return '';
+  }).join('');
+}
+
+function openPost(id){
+  const post = POSTS.find(p=>p.id===id);
+  if(!post) return;
+  const related = POSTS.filter(p=>p.id!==id && p.category===post.category).slice(0,2)
+    .concat(POSTS.filter(p=>p.id!==id && p.category!==post.category)).slice(0,2);
+
+  document.getElementById('articleSlot').innerHTML = `
+    <button class="back-link" onclick="navigate('home')">← Back to Coverage</button>
+    <span class="kicker ${post.catClass}">${post.category}</span>
+    <h1>${post.title}</h1>
+    <p class="dek">${post.dek}</p>
+    <div class="byline"><span>By ${post.author}</span><span class="dot"></span><span>${post.date}</span><span class="dot"></span><span>${post.read}</span></div>
+    <div class="article-cover">${coverSVG(post, 11)}</div>
+    <div class="cover-cap">Illustration for this report.</div>
+    <div class="article-body">${renderBody(post.body)}</div>
+    <div class="tag-row">${post.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+    <p class="related-head">Related Coverage</p>
+    <div class="related-grid">
+      ${related.map((p,i)=>`
+        <article class="card" onclick="openPost('${p.id}')">
+          <div class="card-cover">${coverSVG(p,i+21)}</div>
+          <span class="kicker ${p.catClass}">${p.category}</span>
+          <h3>${p.title}</h3>
+          <div class="meta">${p.author} · ${p.read}</div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+  setView('article');
+  window.scrollTo({top:0});
+}
+
+function setView(view){
+  document.querySelectorAll('[data-view]').forEach(el=>{
+    el.classList.toggle('visible', el.getAttribute('data-view')===view);
+  });
+  renderNav(view==='article' ? null : view);
+}
+function navigate(view){ setView(view); window.scrollTo({top:0, behavior:'smooth'}); }
+function scrollToGrid(){ setTimeout(()=>{ document.getElementById('gridSlot').scrollIntoView({behavior:'smooth'}); }, 50); }
+function handleContact(e){
+  e.preventDefault();
+  document.getElementById('contactNote').textContent = "Received — an editor will follow up shortly.";
+  e.target.reset();
+}
+
+/* live date/clock */
+function updateClock(){
+  const now = new Date();
+  document.getElementById('dateStrip').textContent = now.toLocaleDateString(undefined,{weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  document.getElementById('clockStrip').textContent = now.toLocaleTimeString(undefined,{hour:'2-digit', minute:'2-digit'}) + ' LOCAL';
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+/* init */
+renderNav('home');
+renderTicker();
+renderLead();
+renderCats();
+renderGrid();
+setView('home');
+</script>
+</body>
+</html>
